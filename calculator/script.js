@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const display = document.getElementById("display");
     const buttons = document.querySelectorAll(".btn");
 
-    
     buttons.forEach(button => {
         button.addEventListener("click", function () {
             const value = this.innerText;
@@ -12,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (value === "DEL") {
                 deleteChar();
             } else if (value === "=") {
-                calculateResult();
+                calculateAnswer();
             } else if (value === "^") {
                 appendValue("**"); 
             } else {
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-   
     function appendValue(value) {
         if (display.value === "Error") {
             clearDisplay();
@@ -29,25 +27,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const lastChar = display.value.slice(-1);
 
-        if (isOperator(lastChar) && isOperator(value)) {
+        // Prevent consecutive operators (except for - sign)
+        if (isOperator(lastChar) && isOperator(value) && value !== "-") {
             return;
         }
 
         display.value += value;
     }
 
-    
     function isOperator(char) {
         const operators = ["+", "-", "*", "/", "%", "."];
         return operators.includes(char);
     }
 
- 
     function clearDisplay() {
         display.value = "";
     }
 
-   
     function deleteChar() {
         display.value = display.value.slice(0, -1);
     }
@@ -56,14 +52,21 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             if (display.value.trim() === "") return;
 
-            // Evaluate the expression safely
-            display.value = eval(display.value);
+            // Replace ^ with ** for exponentiation
+            let expression = display.value.replace(/\^/g, "**");
+
+            let result = eval(expression);
+
+            if (Number.isFinite(result)) {
+                display.value = result;
+            } else {
+                display.value = "Error";
+            }
         } catch (error) {
             display.value = "Error";
         }
     }
 
-    
     document.addEventListener("keydown", function (event) {
         const key = event.key;
 
